@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Chat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+</head>
+<body>
+
+    <!-- Login Section -->
+    <div id="login-section">
+        <h2>Welcome to the Chat</h2>
+        <input type="text" placeholder="Username" id="username-input">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Chat Section -->
+    <div id="chat-section" style="display: none;">
+        <div id="messages-container"></div>
+        <input type="text" placeholder="Type something..." id="typing_message_box">
+        <button id="send-button" onclick="send_text();">Send</button>
+    </div>
+
+    <script type="text/javascript">
+        // Check if the user is already logged in
+        if (localStorage.getItem("loggedInUser")) {
+            showChatSection();
+            displayWelcomeMessage();
+        }
+
+        function showChatSection() {
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("chat-section").style.display = "block";
+        }
+
+        function displayWelcomeMessage() {
+            var username = localStorage.getItem("loggedInUser");
+            var welcomeMessage = document.createElement('div');
+            welcomeMessage.innerText = `Welcome, ${username}! Start chatting.`;
+            welcomeMessage.className = 'system-message';
+            document.getElementById('messages-container').appendChild(welcomeMessage);
+        }
+
+        function login() {
+            var username = document.getElementById("username-input").value;
+
+            if (username) {
+                // Save user information in local storage
+                localStorage.setItem("loggedInUser", username);
+
+                showChatSection();
+                displayWelcomeMessage();
+            } else {
+                alert("Please enter a username.");
+            }
+        }
+
+        function send_text() {
+            var loggedInUser = localStorage.getItem("loggedInUser");
+            var message = document.getElementById("typing_message_box").value;
+
+            if (message) {
+                var messageContainer = document.getElementById('messages-container');
+                var messageElement = document.createElement('div');
+                var senderElement = document.createElement('span');
+
+                messageElement.innerText = message;
+                senderElement.innerText = `${loggedInUser}: `;
+
+                messageElement.className = 'receiver-container';
+                senderElement.className = 'username';
+
+                messageContainer.appendChild(senderElement);
+                messageContainer.appendChild(messageElement);
+
+                document.getElementById('typing_message_box').value = "";
+                document.getElementById('typing_message_box').focus();
+            }
+        }
+    </script>
+
+    <style>
+        /* Your existing styles */
+
+        .system-message {
+            color: #888;
+            text-align: center;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #0080FF;
+        }
+    </style>
+</body>
+</html>
