@@ -4,12 +4,60 @@
     <title>Chat</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+    <style>
+        /* Your existing styles */
+        body {
+            background-color: white;
+        }
+
+        #typing_message_box {
+            position: fixed;
+            bottom: 2vh;
+            left: 5vw;
+            width: 70vw;
+            height: 30px;
+            border-radius: 18px;
+            word-spacing: 1pt;
+            letter-spacing: 0.6pt;
+            color: black;
+            border: 1px solid grey;
+            padding-left: 2%;
+        }
+        #typing_message_box:focus {
+            outline: none;
+        }
+        #send-button {
+            width: 18vw;
+            height: 34px;
+            position: fixed;
+            font-size: 16px;
+            font-weight: bold;
+            bottom: 2vh;
+            right: 3vw;
+            cursor: pointer;
+            border-radius: 25px;
+            border: 1px solid grey;
+            color: grey;
+            background-color: #44fe11;
+        }
+
+        .system-message {
+            color: #888;
+            text-align: center;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #0080FF;
+        }
+    </style>
 </head>
 <body>
 
     <!-- Login Section -->
     <div id="login-section">
-        <h2>Welcome bunny(this is our secret place)</h2>
+        <h2>Welcome bunny (this is our secret place)</h2>
         <input type="text" placeholder="Username" id="username-input">
         <button onclick="login()">Login</button>
     </div>
@@ -22,6 +70,9 @@
     </div>
 
     <script type="text/javascript">
+        // WebSocket connection
+        const socket = new WebSocket('wss://' + window.location.host);
+
         // Check if the user is already logged in
         if (localStorage.getItem("loggedInUser")) {
             showChatSection();
@@ -92,58 +143,30 @@
                 storedMessages.push(`${loggedInUser}: ${message}`);
                 localStorage.setItem("chatMessages", JSON.stringify(storedMessages));
 
+                // Send message to server
+                socket.send(JSON.stringify({ user: loggedInUser, message: message }));
+
                 document.getElementById('typing_message_box').value = "";
                 document.getElementById('typing_message_box').focus();
             }
         }
+
+        // Handle incoming messages from the server
+        socket.addEventListener('message', function (event) {
+            var data = JSON.parse(event.data);
+            var messageContainer = document.getElementById('messages-container');
+            var messageElement = document.createElement('div');
+            var senderElement = document.createElement('span');
+
+            messageElement.innerText = data.message;
+            senderElement.innerText = `${data.user}: `;
+
+            messageElement.className = 'receiver-container';
+            senderElement.className = 'username';
+
+            messageContainer.appendChild(senderElement);
+            messageContainer.appendChild(messageElement);
+        });
     </script>
-
-    <style>
-        /* Your existing styles */
-        body {
-            background-color: white;
-        }
-       
-        #typing_message_box {
-            position: fixed;
-            bottom: 2vh;
-            left: 5vw;
-            width: 70vw;
-            height: 30px;
-            border-radius: 18px;
-            word-spacing: 1pt;
-            letter-spacing: 0.6pt;
-            color: black;
-            border: 1px solid grey;
-            padding-left: 2%;
-        }
-        #typing_message_box:focus {
-            outline: none;
-        }
-        #send-button {
-            width: 18vw;
-            height: 34px;
-            position: fixed;
-            font-size: 16px;
-            font-weight: bold;
-            bottom: 2vh;
-            right: 3vw;
-            cursor: pointer;
-            border-radius: 25px;
-            border: 1px solid grey;
-            color: grey;
-            background-color: #44fe11;
-        }
-
-        .system-message {
-            color: #888;
-            text-align: center;
-        }
-
-        .username {
-            font-weight: bold;
-            color: #0080FF;
-        }
-    </style>
 </body>
 </html>
