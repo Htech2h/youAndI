@@ -9,7 +9,7 @@
 
     <!-- Login Section -->
     <div id="login-section">
-        <h2>Welcome to the Chat</h2>
+        <h2>Welcome bunny(this is our secret place)</h2>
         <input type="text" placeholder="Username" id="username-input">
         <button onclick="login()">Login</button>
     </div>
@@ -26,6 +26,7 @@
         if (localStorage.getItem("loggedInUser")) {
             showChatSection();
             displayWelcomeMessage();
+            displayStoredMessages();
         }
 
         function showChatSection() {
@@ -41,6 +42,18 @@
             document.getElementById('messages-container').appendChild(welcomeMessage);
         }
 
+        function displayStoredMessages() {
+            var storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+
+            storedMessages.forEach(function (message) {
+                var messageContainer = document.getElementById('messages-container');
+                var messageElement = document.createElement('div');
+                messageElement.innerText = message;
+                messageElement.className = 'receiver-container';
+                messageContainer.appendChild(messageElement);
+            });
+        }
+
         function login() {
             var username = document.getElementById("username-input").value;
 
@@ -50,6 +63,7 @@
 
                 showChatSection();
                 displayWelcomeMessage();
+                displayStoredMessages();
             } else {
                 alert("Please enter a username.");
             }
@@ -73,6 +87,11 @@
                 messageContainer.appendChild(senderElement);
                 messageContainer.appendChild(messageElement);
 
+                // Save message in local storage
+                var storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+                storedMessages.push(`${loggedInUser}: ${message}`);
+                localStorage.setItem("chatMessages", JSON.stringify(storedMessages));
+
                 document.getElementById('typing_message_box').value = "";
                 document.getElementById('typing_message_box').focus();
             }
@@ -81,6 +100,40 @@
 
     <style>
         /* Your existing styles */
+        body {
+            background-color: white;
+        }
+       
+        #typing_message_box {
+            position: fixed;
+            bottom: 2vh;
+            left: 5vw;
+            width: 70vw;
+            height: 30px;
+            border-radius: 18px;
+            word-spacing: 1pt;
+            letter-spacing: 0.6pt;
+            color: black;
+            border: 1px solid grey;
+            padding-left: 2%;
+        }
+        #typing_message_box:focus {
+            outline: none;
+        }
+        #send-button {
+            width: 18vw;
+            height: 34px;
+            position: fixed;
+            font-size: 16px;
+            font-weight: bold;
+            bottom: 2vh;
+            right: 3vw;
+            cursor: pointer;
+            border-radius: 25px;
+            border: 1px solid grey;
+            color: grey;
+            background-color: #44fe11;
+        }
 
         .system-message {
             color: #888;
